@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "859223610724",
+    "project_id": "ay-bay-72b1e",
+    "storage_bucket": "ay-bay-72b1e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859223610724:android:8af62225ad70e05fab1671",
+        "android_client_info": {
+          "package_name": "com.glubalcomputer.ay_bay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdQD9mem68I3NmFI1mn6FksHsuQdPb_0k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
