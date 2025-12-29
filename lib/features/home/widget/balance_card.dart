@@ -1,9 +1,9 @@
 import 'package:ay_bay/app/app_colors.dart';
 import 'package:ay_bay/app/app_routes.dart';
+import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:ay_bay/features/home/widget/summary_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/home_controller.dart';
 
 class BalanceCard extends StatelessWidget {
   const BalanceCard({super.key});
@@ -14,7 +14,7 @@ class BalanceCard extends StatelessWidget {
 
     return Obx(() {
       return Container(
-        padding: const EdgeInsets.only(top: 30, bottom: 20),
+        padding: const EdgeInsets.only(top: 20, bottom: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(16),
@@ -51,15 +51,13 @@ class BalanceCard extends StatelessWidget {
               },
               child: Text('data', style: TextStyle(color: Colors.white)),
             ),
-            SizedBox(height: 32),
+            SizedBox(height: 16),
             Row(
               children: [
-                _item('মোট টাকা', controller.balance.value),
-                const VerticalDivider(color: Colors.white30),
-                _item('ব্যালেন্স', controller.balance.value),
+                _item('মোট ব্যালেন্স', controller.balance.value),
               ],
             ),
-            SizedBox(height: 32),
+            SizedBox(height: 28),
             SummaryCard(),
           ],
         ),
@@ -74,9 +72,9 @@ class BalanceCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: Colors.white70,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 4),
@@ -84,7 +82,7 @@ class BalanceCard extends StatelessWidget {
             '৳ ${value.toStringAsFixed(0)}',
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 22,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
           ),

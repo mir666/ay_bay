@@ -21,20 +21,27 @@ class TransactionModel {
     this.isMonthly = false,
   });
 
-  factory TransactionModel.fromJson(String id, Map<String, dynamic> json) {
+  /// 🔁 Firestore → Model
+  factory TransactionModel.fromJson(
+      String id,
+      Map<String, dynamic> json,
+      ) {
     return TransactionModel(
       id: id,
-      title: json['title'],
-      amount: (json['amount'] as num).toDouble(),
+      title: json['title'] ?? '',
+      amount: (json['amount'] ?? 0).toDouble(),
       type: json['type'] == 'income'
           ? TransactionType.income
           : TransactionType.expense,
-      category: json['category'],
-      date: (json['date'] as Timestamp).toDate(),
+      category: json['category'] ?? '',
+      date: json['date'] is Timestamp
+          ? (json['date'] as Timestamp).toDate()
+          : DateTime.now(),
       isMonthly: json['isMonthly'] ?? false,
     );
   }
 
+  /// 🔁 Model → Firestore
   Map<String, dynamic> toJson() {
     return {
       'title': title,

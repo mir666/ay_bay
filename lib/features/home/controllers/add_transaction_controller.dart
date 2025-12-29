@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 class AddTransactionController extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final isIncome = true.obs;
+  String? editingTransactionId;
 
   final amountCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
@@ -22,6 +23,18 @@ class AddTransactionController extends GetxController {
 
   final categoriesIncome = ['Salary', 'Gift', 'Tuition'];
   final categoriesExpense = ['Food', 'Market', 'Transport'];
+
+
+  void clearForm() {
+    noteCtrl.clear();
+    amountCtrl.clear();
+    category.value = '';
+    selectedCategory.value = '';
+    selectedDate.value = DateTime.now();
+    type.value = TransactionType.expense;
+    isMonthly.value = false;
+    editingTransactionId = null;
+  }
 
   String get formattedDate =>
       DateFormat('dd MMM yyyy').format(selectedDate.value);
@@ -45,8 +58,7 @@ class AddTransactionController extends GetxController {
     isLoading.value = true;
 
     try {
-      await _db
-          .collection('users')
+      await _db.collection('users')
           .doc(uid)
           .collection('transactions')
           .add({
@@ -58,6 +70,7 @@ class AddTransactionController extends GetxController {
         'isMonthly': isMonthly.value,
         'createdAt': Timestamp.now(),
       });
+      clearForm();
 
       Get.back();
     } catch (e) {
@@ -68,6 +81,7 @@ class AddTransactionController extends GetxController {
   }
 
 
+
   @override
   void onClose() {
     amountCtrl.dispose();
@@ -75,6 +89,8 @@ class AddTransactionController extends GetxController {
     super.onClose();
   }
 }
+
+
 
 
 

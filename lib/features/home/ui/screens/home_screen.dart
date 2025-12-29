@@ -1,8 +1,6 @@
-import 'package:ay_bay/app/app_colors.dart';
-import 'package:ay_bay/app/app_path.dart';
 import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:ay_bay/features/home/widget/balance_card.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ay_bay/features/common/models/transaction_type_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -20,7 +18,7 @@ class HomeScreen extends StatelessWidget {
           const BalanceCard(),
           const SizedBox(height: 16),
 
-          // ক্যাটাগরি ফিল্টার
+          /// Filter Buttons
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -34,7 +32,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // ✅ Expanded এখন parent Column এর সরাসরি child
           Expanded(
             child: Obx(() {
               if (controller.transactions.isEmpty) {
@@ -43,21 +40,78 @@ class HomeScreen extends StatelessWidget {
 
               return ListView.builder(
                 itemCount: controller.transactions.length,
-                itemBuilder: (_, i) {
-                  final trx = controller.transactions[i];
-                  final date = (trx['date'] as Timestamp).toDate();
+                itemBuilder: (context, index) {
+                  final TransactionModel trx =
+                  controller.transactions[index];
 
-                  return ListTile(
-                    title: Text(trx['title'] ?? ''),
-                    subtitle: Text(DateFormat('dd MMM yyyy').format(date)),
-                    trailing: Text(
-                      '৳ ${trx['amount']}',
-                      style: TextStyle(
-                        color: trx['type'] == 'income'
-                            ? Colors.green
-                            : Colors.red,
-                        fontWeight: FontWeight.bold,
+                  final isIncome = trx.type == TransactionType.income;
+
+                  return Card(
+                    color: isIncome
+                        ? Colors.green.withOpacity(0.12)
+                        : Colors.red.withOpacity(0.12),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: ListTile(
+                      title: Text(trx.title),
+                      subtitle: Text(
+                        DateFormat('dd MMM yyyy').format(trx.date),
+                        style: const TextStyle(fontSize: 12),
                       ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min, // এখানে সবচেয়ে গুরুত্বপূর্ণ
+                        children: [
+                          Text(
+                            '${isIncome ? '+' : '-'} ৳ ${trx.amount}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: isIncome ? Colors.green : Colors.red,
+                            ),
+                          ),
+                          const SizedBox(width: 32), // spacing
+                          InkWell(
+                            onTap: () => controller.editTransaction(trx),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.edit_note,
+                                color: Colors.blue,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          InkWell(
+                            onTap: () => controller.deleteTransaction(trx.id),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
                     ),
                   );
                 },
@@ -69,24 +123,10 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /*Widget _buildCategoryButton(String category) {
-    final controller = Get.find<HomeController>();
-
-    return Obx(() {
-      final isSelected = controller.filterCategory.value == category;
-
-      return ChoiceChip(
-        label: Text(category),
-        selected: isSelected,
-        onSelected: (_) => controller.setFilterCategory(category),
-      );
-    });
-  }*/
-
   Widget filterButton(String text) {
     final HomeController controller = Get.find<HomeController>();
     return Obx(
-      () => ChoiceChip(
+          () => ChoiceChip(
         label: Text(text),
         selected: controller.filterCategory.value == text,
         onSelected: (_) => controller.setFilter(text),
@@ -94,3 +134,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+
+

@@ -51,6 +51,7 @@ class _AyBayAppState extends State<AyBayApp> {
         ),
       ),
       initialBinding: ControllerBinding(),
+
     );
   }
 }
