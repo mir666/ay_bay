@@ -23,6 +23,13 @@ class BalanceCard extends StatelessWidget {
           gradient: const LinearGradient(
             colors: [Color(0xFF0F2C59), Color(0xFF1E4FA1)],
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 12,
+              offset: const Offset(0, 6), // নিচে shadow
+            ),
+          ],
         ),
         child: Column(
           children: [

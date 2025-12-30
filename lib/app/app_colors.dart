@@ -16,7 +16,7 @@ class AppColors{
   static const Color ayIncrementAmountColor = Color(0xFF2ABF6F);
   static const Color bayDecrementAmountColor = Color(0xFFFF4646);
   static const Color categoryTitleColor = Color(0xFF4884FD);
-  static const Color categoryTitleBgColor = Color(0xFFF1F4F9);
+  static const Color categoryTitleBgColor = Color(0xFFD5E5FF);
   static const Color monthCardBgColor = Color(0xFFE9EEF8);
   static const Color addButtonColor = Color(0xFF4884FD);
   static const Color monthAddButtonColor = Color(0xFF304775);

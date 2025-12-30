@@ -1,3 +1,4 @@
+import 'package:ay_bay/app/app_colors.dart';
 import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:ay_bay/features/home/widget/balance_card.dart';
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
@@ -19,8 +20,20 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           /// Filter Buttons
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.dateIconBgColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -50,7 +63,10 @@ class HomeScreen extends StatelessWidget {
                     color: isIncome
                         ? Colors.green.withOpacity(0.12)
                         : Colors.red.withOpacity(0.12),
-                    elevation: 0,
+                    elevation: 4,
+                    // ✅ shadow strength
+                    shadowColor: Colors.black26,
+                    // ✅ soft shadow
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -65,7 +81,8 @@ class HomeScreen extends StatelessWidget {
                         style: const TextStyle(fontSize: 12),
                       ),
                       trailing: Row(
-                        mainAxisSize: MainAxisSize.min, // এখানে সবচেয়ে গুরুত্বপূর্ণ
+                        mainAxisSize: MainAxisSize.min,
+                        // এখানে সবচেয়ে গুরুত্বপূর্ণ
                         children: [
                           Text(
                             '${isIncome ? '+' : '-'} ৳ ${trx.amount}',
@@ -123,15 +140,50 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+
   Widget filterButton(String text) {
     final HomeController controller = Get.find<HomeController>();
-    return Obx(
-          () => ChoiceChip(
-        label: Text(text),
-        selected: controller.filterCategory.value == text,
+
+    return Obx(() {
+      final bool isSelected = controller.filterCategory.value == text;
+
+      return ChoiceChip(
+        label: Text(
+          text,
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // ফন্ট মোটা
+            color: isSelected ? AppColors.addButtonColor : AppColors.addButtonColor,
+          ),
+        ),
+        selected: isSelected,
         onSelected: (_) => controller.setFilter(text),
-      ),
-    );
+
+        // 🔥 Selected & Unselected Color
+        selectedColor: AppColors.categoryTitleBgColor,
+        // সিলেক্ট হলে কালারফুল
+        backgroundColor: Colors.white,
+
+        // 🔥 Border
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(
+            color: isSelected ? AppColors.categoryTitleBgColor : Colors.white,
+            width: 1.5,
+          ),
+        ),
+        showCheckmark: false,
+
+        // 🔥 Padding
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 8,
+        ),
+
+        // 🔥 Shadow
+        elevation: isSelected ? 6 : 2,
+        pressElevation: 8,
+      );
+    });
   }
 }
 
