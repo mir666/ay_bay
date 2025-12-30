@@ -21,8 +21,11 @@ class HomeController extends GetxController {
   RxDouble income = 0.0.obs;
   RxDouble expense = 0.0.obs;
   RxDouble balance = 0.0.obs;
+  RxDouble totalBalance = 0.0.obs;
+  final RxString selectedMonth = ''.obs;
 
   String? get uid => _auth.currentUser?.uid;
+
 
   @override
   void onInit() {
@@ -139,12 +142,18 @@ class HomeController extends GetxController {
         'createdAt': Timestamp.now(),
       });
 
+      // 🔥 UI state update
+      selectedMonth.value = monthName;
+      totalBalance.value = openingBalance;
+      balance.value = openingBalance;
+
       Get.back();
       Get.snackbar('Success', 'মাস যোগ হয়েছে');
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
   }
+
 
   /// ✏️ Edit Transaction
   void editTransaction(TransactionModel trx) {

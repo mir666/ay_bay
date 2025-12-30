@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: AppColors.categoryShadowColor,
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -61,12 +61,12 @@ class HomeScreen extends StatelessWidget {
 
                   return Card(
                     color: isIncome
-                        ? Colors.green.withOpacity(0.12)
-                        : Colors.red.withOpacity(0.12),
-                    elevation: 4,
-                    // ✅ shadow strength
+                        ? AppColors.ayCardColor
+                        : AppColors.bayCardColor,
+                    elevation: 6,
+
                     shadowColor: Colors.black26,
-                    // ✅ soft shadow
+
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -82,7 +82,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
-                        // এখানে সবচেয়ে গুরুত্বপূর্ণ
                         children: [
                           Text(
                             '${isIncome ? '+' : '-'} ৳ ${trx.amount}',
@@ -105,11 +104,11 @@ class HomeScreen extends StatelessWidget {
                               child: const Icon(
                                 Icons.edit_note,
                                 color: Colors.blue,
-                                size: 20,
+                                size: 22,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 14),
                           InkWell(
                             onTap: () => controller.deleteTransaction(trx.id),
                             borderRadius: BorderRadius.circular(8),
@@ -122,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                               child: const Icon(
                                 Icons.delete_outline,
                                 color: Colors.red,
-                                size: 20,
+                                size: 22,
                               ),
                             ),
                           ),
@@ -151,8 +150,9 @@ class HomeScreen extends StatelessWidget {
         label: Text(
           text,
           style: TextStyle(
-            fontWeight: FontWeight.bold, // ফন্ট মোটা
-            color: isSelected ? AppColors.addButtonColor : AppColors.addButtonColor,
+            fontWeight: FontWeight.bold,
+            color: isSelected ? AppColors.addButtonColor : AppColors.unSelectedColor,
+            fontSize: isSelected ? 16 : 14,
           ),
         ),
         selected: isSelected,
@@ -160,7 +160,6 @@ class HomeScreen extends StatelessWidget {
 
         // 🔥 Selected & Unselected Color
         selectedColor: AppColors.categoryTitleBgColor,
-        // সিলেক্ট হলে কালারফুল
         backgroundColor: Colors.white,
 
         // 🔥 Border
@@ -168,7 +167,7 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           side: BorderSide(
             color: isSelected ? AppColors.categoryTitleBgColor : Colors.white,
-            width: 1.5,
+            width: 1,
           ),
         ),
         showCheckmark: false,
@@ -180,7 +179,7 @@ class HomeScreen extends StatelessWidget {
         ),
 
         // 🔥 Shadow
-        elevation: isSelected ? 6 : 2,
+        elevation: isSelected ? 6 : 6,
         pressElevation: 8,
       );
     });

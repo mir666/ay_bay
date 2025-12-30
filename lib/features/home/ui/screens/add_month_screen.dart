@@ -33,7 +33,7 @@ class _AddMonthScreenState extends State<AddMonthScreen> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'মোট টাকা'),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             InkWell(
               onTap: () async {
                 selectedDate = await showDatePicker(
@@ -56,16 +56,21 @@ class _AddMonthScreenState extends State<AddMonthScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                controller.addMonth(
-                  monthDate: DateTime(2025, 1),
-                  openingBalance: 5000,
-                );
+                if (amountCtrl.text.isEmpty || selectedDate == null) {
+                  Get.snackbar('Error', 'সব ফিল্ড পূরণ করুন');
+                  return;
+                }
 
+                controller.addMonth(
+                  monthDate: selectedDate!,
+                  openingBalance: double.parse(amountCtrl.text),
+                );
               },
-              child: const Text('যোগ করুন'),
+
+              child: Text('যোগ করুন', style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w600),),
             )
           ],
         ),

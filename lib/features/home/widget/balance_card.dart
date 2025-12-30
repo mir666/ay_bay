@@ -25,9 +25,9 @@ class BalanceCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: AppColors.bannerShadowColor,
               blurRadius: 12,
-              offset: const Offset(0, 6), // নিচে shadow
+              offset: const Offset(4, 4), // নিচে shadow
             ),
           ],
         ),
@@ -50,21 +50,32 @@ class BalanceCard extends StatelessWidget {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.monthAddButtonColor,
+                backgroundColor: AppColors.categoryTitleBgColor.withOpacity(0.4),
                 padding: EdgeInsets.symmetric(horizontal: 120),
               ),
               onPressed: () {
                 Get.toNamed(AppRoutes.addMonth);
               },
-              child: Text('data', style: TextStyle(color: Colors.white)),
+              child: Obx(() => Text(
+                controller.selectedMonth.value.isEmpty
+                    ? 'মাস'
+                    : controller.selectedMonth.value,
+                style: const TextStyle(
+                  color: Color(0xFF1E1B4B),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              )),
+
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 40),
             Row(
               children: [
-                _item('মোট ব্যালেন্স', controller.balance.value),
+                _item('মোট বাজেট', controller.totalBalance.value),
+                _item('ব্যালেন্স', controller.balance.value),
               ],
             ),
-            SizedBox(height: 28),
+            SizedBox(height: 40),
             SummaryCard(),
           ],
         ),
@@ -80,7 +91,7 @@ class BalanceCard extends StatelessWidget {
             title,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 48,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -89,7 +100,7 @@ class BalanceCard extends StatelessWidget {
             '৳ ${value.toStringAsFixed(0)}',
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 32,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
