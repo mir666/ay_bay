@@ -4,6 +4,7 @@ import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:ay_bay/features/home/widget/summary_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class BalanceCard extends StatelessWidget {
   const BalanceCard({super.key});
@@ -56,16 +57,23 @@ class BalanceCard extends StatelessWidget {
               onPressed: () {
                 Get.toNamed(AppRoutes.addMonth);
               },
-              child: Obx(() => Text(
-                controller.selectedMonth.value.isEmpty
+              child: Obx(() {
+                final monthText = controller.selectedMonth.value.isEmpty
                     ? 'মাস'
-                    : controller.selectedMonth.value,
-                style: const TextStyle(
-                  color: Color(0xFF1E1B4B),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              )),
+                    : controller.selectedMonth.value;
+
+                final today = controller.todayDate.value;
+
+                return Text(
+                  '$monthText (${DateFormat('dd MMM').format(today)})',
+                  style: const TextStyle(
+                    color: Color(0xFF1E1B4B),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              }),
+
 
             ),
             SizedBox(height: 40),

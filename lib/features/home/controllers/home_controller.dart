@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:ay_bay/features/auth/ui/screens/log_in_screen.dart';
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
 import 'package:ay_bay/features/home/ui/screens/add_transaction_screen.dart';
@@ -23,6 +24,10 @@ class HomeController extends GetxController {
   RxDouble balance = 0.0.obs;
   RxDouble totalBalance = 0.0.obs;
   final RxString selectedMonth = ''.obs;
+  RxString selectedMonthId = ''.obs;
+  RxBool canAddTransaction = false.obs;
+  Rx<DateTime> todayDate = DateTime.now().obs;
+
 
   String? get uid => _auth.currentUser?.uid;
 
@@ -30,30 +35,53 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _listenTransactions();
     _listenMonths();
+    Timer.periodic(const Duration(minutes: 1), (_) {
+      todayDate.value = DateTime.now();
+    });
+    _fetchActiveMonth();
   }
 
-  /// 🔥 Firestore Transaction Listener
-  void _listenTransactions() {
+  void _fetchActiveMonth() async {
     if (uid == null) return;
 
-    _db
+    final snapshot = await _db
         .collection('users')
         .doc(uid)
-        .collection('transactions')
-        .orderBy('date', descending: true)
-        .snapshots()
-        .listen((snapshot) {
-      final data = snapshot.docs
-          .map((e) => TransactionModel.fromJson(e.id, e.data()))
-          .toList();
+        .collection('months')
+        .where('isActive', isEqualTo: true)
+        .limit(1)
+        .get();
 
-      allTransactions.value = data;
-      transactions.value = _applyFilter(data);
-      _calculateDashboard(data);
-    });
+    if (snapshot.docs.isNotEmpty) {
+      final m = snapshot.docs.first;
+      selectedMonth.value = m['month'];
+      selectedMonthId.value = m.id;
+      totalBalance.value = (m['totalBalance'] ?? 0).toDouble();
+      balance.value = (m['opening'] ?? 0).toDouble();
+
+      // Active month → can add transaction
+      canAddTransaction.value = true;
+
+      fetchTransactions(m.id);
+    }
   }
+
+  /// মাস সিলেক্ট করার মেথড
+  void selectMonth(Map<String, dynamic> month) {
+    selectedMonth.value = month['month'];
+    selectedMonthId.value = month['id'];
+    totalBalance.value = (month['totalBalance'] ?? 0).toDouble();
+
+    // সিলেক্ট করা মাসের ট্রানজ্যাকশন লোড
+    fetchTransactions(month['id']);
+
+    // মাসিক লিস্ট থেকে select করলে filter সব থাকবে
+    setFilter('সব');
+  }
+
+
+
 
   /// ✅ Filter Logic (MODEL BASED)
   List<TransactionModel> _applyFilter(List<TransactionModel> data) {
@@ -102,8 +130,9 @@ class HomeController extends GetxController {
 
     income.value = inc;
     expense.value = exp;
-    balance.value = inc - exp;
+    balance.value = totalBalance.value + inc - exp;
   }
+
 
   /// 📅 Month Listener
   void _listenMonths() {
@@ -116,11 +145,38 @@ class HomeController extends GetxController {
         .orderBy('monthKey', descending: true)
         .snapshots()
         .listen((snapshot) {
-      months.value = snapshot.docs.map((e) => e.data()).toList();
+      months.value = snapshot.docs
+          .map((e) => {
+        'id': e.id,
+        ...e.data(),
+      })
+          .toList();
     });
   }
 
-  /// ➕ Add Month
+  Future<void> fetchTransactions(String monthId) async {
+    if (uid == null) return;
+
+    final snap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('months')
+        .doc(monthId)
+        .collection('transactions')
+        .orderBy('date', descending: true)
+        .get();
+
+    final data = snap.docs
+        .map((e) => TransactionModel.fromJson(e.id, e.data()))
+        .toList();
+
+    allTransactions.value = data;
+    transactions.value = _applyFilter(data);
+    _calculateDashboard(data);
+  }
+
+
+
   Future<void> addMonth({
     required DateTime monthDate,
     required double openingBalance,
@@ -131,7 +187,20 @@ class HomeController extends GetxController {
     final monthName = DateFormat('MMMM yyyy').format(monthDate);
 
     try {
-      await _db
+      // 🔹 Deactivate previous month
+      final previous = await _db
+          .collection('users')
+          .doc(uid)
+          .collection('months')
+          .where('isActive', isEqualTo: true)
+          .get();
+
+      for (var doc in previous.docs) {
+        await doc.reference.update({'isActive': false});
+      }
+
+      // 🔹 Add new month
+      final docRef = await _db
           .collection('users')
           .doc(uid)
           .collection('months')
@@ -139,20 +208,26 @@ class HomeController extends GetxController {
         'month': monthName,
         'monthKey': monthKey,
         'opening': openingBalance,
+        'totalBalance': openingBalance,
         'createdAt': Timestamp.now(),
+        'isActive': true,
       });
 
-      // 🔥 UI state update
+      // UI Update
       selectedMonth.value = monthName;
+      selectedMonthId.value = docRef.id;
       totalBalance.value = openingBalance;
       balance.value = openingBalance;
+      canAddTransaction.value = true;
 
       Get.back();
-      Get.snackbar('Success', 'মাস যোগ হয়েছে');
+      Get.snackbar('Success', 'নতুন মাস যোগ হয়েছে');
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
   }
+
+
 
 
   /// ✏️ Edit Transaction

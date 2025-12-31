@@ -47,6 +47,44 @@ class HomeScreen extends StatelessWidget {
 
           Expanded(
             child: Obx(() {
+              // 🔹 মাসিক ফিল্টার হলে মাসের লিস্ট দেখাবে
+              if (controller.filterCategory.value == 'মাসিক') {
+                if (controller.months.isEmpty) {
+                  return const Center(child: Text('কোনো মাস যোগ করা হয়নি'));
+                }
+
+                return ListView.builder(
+                  itemCount: controller.months.length,
+                  itemBuilder: (context, index) {
+                    final m = controller.months[index];
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        title: Text(
+                          m['month'],
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                        ),
+                        onTap: () {
+                          controller.selectMonth(m);
+                        },
+                      ),
+                    );
+                  },
+                );
+              }
+
+              // 🔹 অন্য ফিল্টার / হোম লিস্ট দেখাবে (last active month)
               if (controller.transactions.isEmpty) {
                 return const Center(child: Text('কোনো ট্রানজাকশন নেই'));
               }
@@ -54,9 +92,7 @@ class HomeScreen extends StatelessWidget {
               return ListView.builder(
                 itemCount: controller.transactions.length,
                 itemBuilder: (context, index) {
-                  final TransactionModel trx =
-                  controller.transactions[index];
-
+                  final trx = controller.transactions[index];
                   final isIncome = trx.type == TransactionType.income;
 
                   return Card(
@@ -64,16 +100,11 @@ class HomeScreen extends StatelessWidget {
                         ? AppColors.ayCardColor
                         : AppColors.bayCardColor,
                     elevation: 6,
-
                     shadowColor: Colors.black26,
-
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: ListTile(
                       title: Text(trx.title),
                       subtitle: Text(
@@ -91,7 +122,7 @@ class HomeScreen extends StatelessWidget {
                               color: isIncome ? Colors.green : Colors.red,
                             ),
                           ),
-                          const SizedBox(width: 32), // spacing
+                          const SizedBox(width: 32),
                           InkWell(
                             onTap: () => controller.editTransaction(trx),
                             borderRadius: BorderRadius.circular(8),
@@ -127,13 +158,15 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-
                     ),
                   );
                 },
               );
             }),
           ),
+
+
+
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
+import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,9 @@ class AddTransactionController extends GetxController {
   final amountCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
   final selectedCategory = ''.obs;
-  final selectedDate = DateTime.now().obs;
+  final selectedDate = DateTime
+      .now()
+      .obs;
 
   Rx<TransactionType> type = TransactionType.expense.obs;
   RxString category = ''.obs;
@@ -43,42 +46,43 @@ class AddTransactionController extends GetxController {
     selectedDate.value = date;
   }
 
-  Future<void> saveTransaction() async {
-    if (noteCtrl.text.isEmpty || amountCtrl.text.isEmpty) {
-      Get.snackbar('Error', 'সব ফিল্ড পূরণ করুন');
+  void checkMonthBeforeSave() {
+    final hController = Get.find<HomeController>();
+    if (!hController.canAddTransaction.value) {
+      Get.snackbar('Error', 'এই মাসে আর লেনদেন যোগ করা যাবে না');
       return;
-    }
-
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) {
-      Get.snackbar('Error', 'User not logged in');
-      return;
-    }
-
-    isLoading.value = true;
-
-    try {
-      await _db.collection('users')
-          .doc(uid)
-          .collection('transactions')
-          .add({
-        'title': noteCtrl.text.trim(),
-        'amount': double.parse(amountCtrl.text),
-        'type': type.value == TransactionType.income ? 'income' : 'expense',
-        'category': category.value,
-        'date': Timestamp.fromDate(selectedDate.value),
-        'isMonthly': isMonthly.value,
-        'createdAt': Timestamp.now(),
-      });
-      clearForm();
-
-      Get.back();
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    } finally {
-      isLoading.value = false;
     }
   }
+
+
+  Future<void> saveTransaction() async {
+    checkMonthBeforeSave();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final home = Get.find<HomeController>();
+
+    if (uid == null || home.selectedMonthId.isEmpty) return;
+
+    await _db
+        .collection('users')
+        .doc(uid)
+        .collection('months')
+        .doc(home.selectedMonthId.value)
+        .collection('transactions')
+        .add({
+      'title': noteCtrl.text.trim(),
+      'amount': double.parse(amountCtrl.text),
+      'type': type.value == TransactionType.income ? 'income' : 'expense',
+      'category': category.value,
+      'date': Timestamp.fromDate(selectedDate.value),
+      'isMonthly': isMonthly.value,
+    });
+
+    home.fetchTransactions(home.selectedMonthId.value);
+
+    clearForm();
+    Get.back();
+  }
+
 
 
 
