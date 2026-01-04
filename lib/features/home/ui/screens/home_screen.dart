@@ -1,8 +1,10 @@
+
 import 'package:ay_bay/app/app_colors.dart';
 import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:ay_bay/features/home/widget/balance_card.dart';
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -58,31 +60,55 @@ class HomeScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final m = controller.months[index];
 
-                    return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          m['month'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                    return Slidable(
+                      key: Key(m['id']),
+                      endActionPane: ActionPane(
+                        motion: const DrawerMotion(), // swipe motion
+                        extentRatio: 0.25, // swipe মাত্রা
+                        children: [
+                          SlidableAction(
+                            onPressed: (_) {
+                              Get.defaultDialog(
+                                title: 'Confirm Delete',
+                                middleText: '${m['month']} মাস ডিলিট করতে চাচ্ছো?',
+                                textConfirm: 'হ্যাঁ',
+                                textCancel: 'না',
+                                confirmTextColor: Colors.white,
+                                onConfirm: () {
+                                  Get.back();
+                                  controller.deleteMonth(m['id'], m['month']);
+                                },
+                              );
+                            },
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            icon: Icons.delete_outline,
                           ),
+                        ],
+                      ),
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        trailing: const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
+                        child: ListTile(
+                          title: Text(
+                            m['month'],
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onTap: () => controller.selectMonth(m),
                         ),
-                        onTap: () {
-                          controller.selectMonth(m);
-                        },
                       ),
                     );
                   },
                 );
               }
+
 
               // 🔹 অন্য ফিল্টার / হোম লিস্ট দেখাবে (last active month)
               if (controller.transactions.isEmpty) {
@@ -218,6 +244,3 @@ class HomeScreen extends StatelessWidget {
     });
   }
 }
-
-
-

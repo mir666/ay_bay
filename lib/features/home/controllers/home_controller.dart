@@ -227,6 +227,58 @@ class HomeController extends GetxController {
     }
   }
 
+  /// 🗑️ Delete Month
+  Future<void> deleteMonth(String monthId, String monthName) async {
+    if (uid == null) return;
+
+    try {
+      final monthRef = _db.collection('users').doc(uid).collection('months').doc(monthId);
+
+      // 🔹 1️⃣ মাসের সব ট্রানজ্যাকশন ডিলিট
+      final trxSnapshot = await monthRef.collection('transactions').get();
+      for (var doc in trxSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // 🔹 2️⃣ মাস নিজেও ডিলিট
+      await monthRef.delete();
+
+      // 🔹 3️⃣ যদি ডিলিট করা মাস Active হয়, তাহলে অন্য মাস Active করা
+      if (selectedMonthId.value == monthId) {
+        final snapshot = await _db
+            .collection('users')
+            .doc(uid)
+            .collection('months')
+            .orderBy('monthKey', descending: true)
+            .limit(1)
+            .get();
+
+        if (snapshot.docs.isNotEmpty) {
+          final m = snapshot.docs.first;
+          await m.reference.update({'isActive': true});
+          selectedMonth.value = m['month'];
+          selectedMonthId.value = m.id;
+          totalBalance.value = (m['totalBalance'] ?? 0).toDouble();
+          balance.value = (m['opening'] ?? 0).toDouble();
+          fetchTransactions(m.id);
+        } else {
+          // যদি আর কোনো মাস না থাকে
+          selectedMonth.value = '';
+          selectedMonthId.value = '';
+          totalBalance.value = 0;
+          transactions.clear();
+          allTransactions.clear();
+        }
+      }
+
+      Get.snackbar('Success', '$monthName মাস মুছে দেওয়া হয়েছে');
+
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    }
+  }
+
+
 
 
 
@@ -237,21 +289,27 @@ class HomeController extends GetxController {
 
   /// 🗑️ Delete Transaction (100% Working)
   Future<void> deleteTransaction(String id) async {
-    if (uid == null) return;
+    if (uid == null || selectedMonthId.isEmpty) return;
 
     try {
       await _db
           .collection('users')
           .doc(uid)
+          .collection('months')
+          .doc(selectedMonthId.value)
           .collection('transactions')
           .doc(id)
           .delete();
+
+      // UI refresh
+      fetchTransactions(selectedMonthId.value);
 
       Get.snackbar('Success', 'লেনদেন ডিলিট হয়েছে');
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
   }
+
 
   /// 🚪 Logout
   Future<void> logout() async {

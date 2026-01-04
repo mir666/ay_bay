@@ -56,32 +56,40 @@ class AddTransactionController extends GetxController {
 
 
   Future<void> saveTransaction() async {
-    checkMonthBeforeSave();
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final home = Get.find<HomeController>();
 
     if (uid == null || home.selectedMonthId.isEmpty) return;
 
-    await _db
-        .collection('users')
-        .doc(uid)
-        .collection('months')
-        .doc(home.selectedMonthId.value)
-        .collection('transactions')
-        .add({
+    final data = {
       'title': noteCtrl.text.trim(),
       'amount': double.parse(amountCtrl.text),
       'type': type.value == TransactionType.income ? 'income' : 'expense',
       'category': category.value,
       'date': Timestamp.fromDate(selectedDate.value),
       'isMonthly': isMonthly.value,
-    });
+    };
+
+    final ref = _db
+        .collection('users')
+        .doc(uid)
+        .collection('months')
+        .doc(home.selectedMonthId.value)
+        .collection('transactions');
+
+    if (editingTransactionId == null) {
+      // ➕ ADD
+      await ref.add(data);
+    } else {
+      // ✏️ EDIT
+      await ref.doc(editingTransactionId).update(data);
+    }
 
     home.fetchTransactions(home.selectedMonthId.value);
-
     clearForm();
     Get.back();
   }
+
 
 
 
