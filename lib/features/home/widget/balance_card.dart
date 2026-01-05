@@ -19,7 +19,6 @@ class BalanceCard extends StatelessWidget {
     return Obx(() {
       return Stack(
         children: [
-
           /// 🔹 MAIN CARD
           Container(
             padding: const EdgeInsets.only(top: 20, bottom: 20),
@@ -47,9 +46,11 @@ class BalanceCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () {
-                        },
-                        icon: const Icon(Icons.menu_rounded, color: Colors.white),
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.menu_rounded,
+                          color: Colors.white,
+                        ),
                       ),
 
                       IconButton(
@@ -69,33 +70,69 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
 
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                    AppColors.categoryTitleBgColor.withOpacity(0.4),
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 120),
-                  ),
-                  onPressed: () {
-                    Get.toNamed(AppRoutes.addMonth);
-                  },
-                  child: Obx(() {
-                    final monthText =
-                    controller.selectedMonth.value.isEmpty
-                        ? 'মাস'
-                        : controller.selectedMonth.value;
-
-                    final today = controller.todayDate.value;
-
-                    return Text(
-                      '$monthText (${DateFormat('dd MMM').format(today)})',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                Padding(
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(), // 🔹 Circular shape
+                          padding: const EdgeInsets.all(16), // 🔹 Button size
+                          backgroundColor: AppColors.categoryTitleBgColor.withOpacity(0.2), // 🔹 Button color
+                          elevation: 4, // 🔹 Shadow
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          size: 20, // 🔹 Icon size
+                        ),
                       ),
-                    );
-                  }),
+
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.categoryTitleBgColor
+                              .withOpacity(0.2),
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                        ),
+                        onPressed: () {
+                          Get.toNamed(AppRoutes.addMonth);
+                        },
+                        child: Obx(() {
+                          final monthText =
+                              controller.selectedMonth.value.isEmpty
+                              ? 'মাস'
+                              : controller.selectedMonth.value;
+
+                          final today = controller.todayDate.value;
+
+                          return Text(
+                            '$monthText (${DateFormat('dd MMM').format(today)})',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        }),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(), // 🔹 Circular shape
+                          padding: const EdgeInsets.all(16), // 🔹 Button size
+                          backgroundColor: AppColors.categoryTitleBgColor.withOpacity(0.2), // 🔹 Button color
+                          elevation: 4, // 🔹 Shadow
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.white,
+                          size: 20, // 🔹 Icon size
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 40),
@@ -118,9 +155,7 @@ class BalanceCard extends StatelessWidget {
                 onTap: controller.closeSearch,
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                  child: Container(
-                    color: Colors.black.withOpacity(0.35),
-                  ),
+                  child: Container(color: Colors.black.withOpacity(0.35)),
                 ),
               ),
             ),
@@ -137,7 +172,6 @@ class BalanceCard extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-
                     /// Search Bar
                     Padding(
                       padding: const EdgeInsets.all(12),
@@ -163,26 +197,23 @@ class BalanceCard extends StatelessWidget {
                         children: [
                           const Padding(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
                             child: Text(
                               'মাস',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           ListView.builder(
                             shrinkWrap: true,
-                            physics:
-                            const NeverScrollableScrollPhysics(),
-                            itemCount:
-                            controller.monthSuggestions.length,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: controller.monthSuggestions.length,
                             itemBuilder: (context, index) {
-                              final m =
-                              controller.monthSuggestions[index];
+                              final m = controller.monthSuggestions[index];
 
                               return ListTile(
-                                leading:
-                                const Icon(Icons.calendar_month),
+                                leading: const Icon(Icons.calendar_month),
                                 title: searchHighlightText(
                                   m['month'],
                                   controller.searchText.value,
@@ -206,39 +237,35 @@ class BalanceCard extends StatelessWidget {
                       }
 
                       return Container(
-                        constraints:
-                        const BoxConstraints(maxHeight: 260),
+                        constraints: const BoxConstraints(maxHeight: 260),
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: controller.suggestions.length,
                           itemBuilder: (context, index) {
-                            final trx =
-                            controller.suggestions[index];
+                            final trx = controller.suggestions[index];
 
                             return ListTile(
                               leading: Icon(
                                 trx.type == TransactionType.income
                                     ? Icons.arrow_downward
                                     : Icons.arrow_upward,
-                                color: trx.type ==
-                                    TransactionType.income
+                                color: trx.type == TransactionType.income
                                     ? Colors.green
                                     : Colors.red,
                               ),
                               title: searchHighlightText(
                                 trx.title,
                                 controller.searchText.value,
-                                highlightColor: trx.type == TransactionType.income
+                                highlightColor:
+                                    trx.type == TransactionType.income
                                     ? Colors.green
                                     : Colors.red,
                               ),
 
                               subtitle: Text(
-                                DateFormat('dd MMM yyyy')
-                                    .format(trx.date),
+                                DateFormat('dd MMM yyyy').format(trx.date),
                               ),
-                              trailing:
-                              Text('৳ ${trx.amount}'),
+                              trailing: Text('৳ ${trx.amount}'),
                               onTap: () {
                                 controller.selectSuggestion(trx);
                                 controller.closeSearch();

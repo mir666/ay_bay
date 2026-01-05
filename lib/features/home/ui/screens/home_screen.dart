@@ -67,7 +67,7 @@ class HomeScreen extends StatelessWidget {
                       key: Key(m['id']),
                       endActionPane: ActionPane(
                         motion: const DrawerMotion(), // swipe motion
-                        extentRatio: 0.25, // swipe মাত্রা
+                        extentRatio: 0.18, // swipe মাত্রা
                         children: [
                           SlidableAction(
                             onPressed: (_) {
@@ -78,6 +78,7 @@ class HomeScreen extends StatelessWidget {
                                 textConfirm: 'হ্যাঁ',
                                 textCancel: 'না',
                                 confirmTextColor: Colors.white,
+                                buttonColor: Colors.red,
                                 onConfirm: () {
                                   Get.back();
                                   controller.deleteMonth(m['id'], m['month']);
@@ -86,7 +87,7 @@ class HomeScreen extends StatelessWidget {
                             },
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(50),
                             icon: Icons.delete_outline,
                           ),
                         ],
