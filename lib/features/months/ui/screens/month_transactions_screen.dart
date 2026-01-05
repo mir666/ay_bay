@@ -1,3 +1,4 @@
+import 'package:ay_bay/app/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,7 @@ class MonthTransactionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
+    controller.saveLastScreen(AppRoutes.monthTransactionSave);
     controller.fetchTransactions(monthId);
 
     return Scaffold(
@@ -28,7 +30,7 @@ class MonthTransactionsScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
+            icon: const Icon(Icons.download),
             onPressed: () async {
               await _generatePdf(controller);
             },

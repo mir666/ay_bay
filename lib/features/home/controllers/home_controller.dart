@@ -5,17 +5,18 @@ import 'package:ay_bay/features/home/ui/screens/add_transaction_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 
 class HomeController extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _storage = GetStorage();
 
   /// UI State
   RxList<TransactionModel> allTransactions = <TransactionModel>[].obs;
   RxList<TransactionModel> transactions = <TransactionModel>[].obs;
-
-  RxString filterCategory = 'সব'.obs;
+  final monthSuggestions = <Map<String, dynamic>>[].obs;
   RxList<Map<String, dynamic>> months = <Map<String, dynamic>>[].obs;
 
   /// Dashboard
@@ -23,6 +24,7 @@ class HomeController extends GetxController {
   RxDouble expense = 0.0.obs;
   RxDouble balance = 0.0.obs;
   RxDouble totalBalance = 0.0.obs;
+  RxString filterCategory = 'সব'.obs;
   final RxString selectedMonth = ''.obs;
   RxString selectedMonthId = ''.obs;
   RxBool canAddTransaction = false.obs;
@@ -30,7 +32,7 @@ class HomeController extends GetxController {
 
 
   String? get uid => _auth.currentUser?.uid;
-  final monthSuggestions = <Map<String, dynamic>>[].obs;
+
 
 
 
@@ -38,6 +40,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     _listenMonths();
+    _loadState();
     Timer.periodic(const Duration(minutes: 1), (_) {
       todayDate.value = DateTime.now();
     });
@@ -48,6 +51,24 @@ class HomeController extends GetxController {
   final isSearching = false.obs;
   final searchText = ''.obs;
   final suggestions = <TransactionModel>[].obs;
+
+  // 🔹 Load last session
+  void _loadState() {
+    selectedMonthId.value = _storage.read('selectedMonthId') ?? '';
+    selectedMonth.value = _storage.read('selectedMonth') ?? '';
+    filterCategory.value = _storage.read('filterCategory') ?? 'সব';
+  }
+
+  // 🔹 Save current session
+  void _saveState() {
+    _storage.write('selectedMonthId', selectedMonthId.value);
+    _storage.write('selectedMonth', selectedMonth.value);
+    _storage.write('filterCategory', filterCategory.value);
+  }
+
+  void saveLastScreen(String routeName) {
+    _storage.write('lastScreen', routeName);
+  }
 
   void searchTransaction(String query) {
     searchText.value = query;
@@ -90,8 +111,6 @@ class HomeController extends GetxController {
     closeSearch();
   }
 
-
-
   void closeSearch() {
     isSearching.value = false;
     searchText.value = '';
@@ -100,10 +119,26 @@ class HomeController extends GetxController {
   }
 
 
-
-
   void _fetchActiveMonth() async {
     if (uid == null) return;
+    String lastMonthId = _storage.read('selectedMonthId') ?? '';
+    DocumentSnapshot? doc;
+
+    if (lastMonthId.isNotEmpty) {
+      doc = await _db.collection('users').doc(uid).collection('months').doc(lastMonthId).get();
+    }
+
+    if (doc == null || !doc.exists) {
+      final snapshot = await _db.collection('users').doc(uid).collection('months').where('isActive', isEqualTo: true).limit(1).get();
+      if (snapshot.docs.isNotEmpty) doc = snapshot.docs.first;
+    }
+
+    if (doc != null && doc.exists) {
+      selectedMonth.value = doc['month'];
+      selectedMonthId.value = doc.id;
+      canAddTransaction.value = true;
+      fetchTransactions(doc.id);
+    }
 
     final snapshot = await _db
         .collection('users')
@@ -132,7 +167,7 @@ class HomeController extends GetxController {
     selectedMonth.value = month['month'];
     selectedMonthId.value = month['id'];
     totalBalance.value = (month['totalBalance'] ?? 0).toDouble();
-
+    _saveState();
     // সিলেক্ট করা মাসের ট্রানজ্যাকশন লোড
     fetchTransactions(month['id']);
 
@@ -166,6 +201,7 @@ class HomeController extends GetxController {
       }).toList();
     }
 
+
     return data;
   }
 
@@ -173,6 +209,7 @@ class HomeController extends GetxController {
   void setFilter(String value) {
     filterCategory.value = value;
     transactions.value = _applyFilter(allTransactions);
+    _saveState();
   }
 
   /// 💰 Dashboard Calculation (MODEL BASED)

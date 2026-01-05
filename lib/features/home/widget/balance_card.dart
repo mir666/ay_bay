@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:ay_bay/app/app_colors.dart';
 import 'package:ay_bay/app/app_routes.dart';
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
@@ -48,10 +47,11 @@ class BalanceCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.linear_scale_sharp,
-                            color: Colors.white),
+                        onPressed: () {
+                        },
+                        icon: const Icon(Icons.menu_rounded, color: Colors.white),
                       ),
+
                       IconButton(
                         icon: Icon(
                           controller.isSearching.value

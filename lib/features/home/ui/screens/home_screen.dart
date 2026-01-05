@@ -1,4 +1,5 @@
 import 'package:ay_bay/app/app_colors.dart';
+import 'package:ay_bay/app/app_routes.dart';
 import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:ay_bay/features/home/widget/balance_card.dart';
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
@@ -15,6 +16,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.find<HomeController>();
+    controller.saveLastScreen(AppRoutes.home);
 
     return Scaffold(
       body: Column(
