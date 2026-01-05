@@ -1,8 +1,9 @@
-
 import 'package:ay_bay/app/app_colors.dart';
 import 'package:ay_bay/features/home/controllers/home_controller.dart';
 import 'package:ay_bay/features/home/widget/balance_card.dart';
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
+import 'package:ay_bay/features/months/ui/screens/month_transactions_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -70,7 +71,8 @@ class HomeScreen extends StatelessWidget {
                             onPressed: (_) {
                               Get.defaultDialog(
                                 title: 'Confirm Delete',
-                                middleText: '${m['month']} মাস ডিলিট করতে চাচ্ছো?',
+                                middleText:
+                                    '${m['month']} মাস ডিলিট করতে চাচ্ছো?',
                                 textConfirm: 'হ্যাঁ',
                                 textCancel: 'না',
                                 confirmTextColor: Colors.white,
@@ -88,7 +90,10 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                       child: Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -100,15 +105,49 @@ class HomeScreen extends StatelessWidget {
                               fontSize: 16,
                             ),
                           ),
-                          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                          onTap: () => controller.selectMonth(m),
+                          trailing: FutureBuilder<QuerySnapshot>(
+                            future: FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(controller.uid)
+                                .collection('months')
+                                .doc(m['id'])
+                                .collection('transactions')
+                                .where('type', isEqualTo: 'expense')
+                                .get(),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return const SizedBox(width: 40); // লোডিং স্পেস
+                              }
+                              final totalExpense = snapshot.data!.docs
+                                  .fold<double>(
+                                    0,
+                                    (double sum, doc) =>
+                                        sum + (doc['amount']?.toDouble() ?? 0),
+                                  );
+                              return Text(
+                                '৳${totalExpense.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.red,
+                                ),
+                              );
+                            },
+                          ),
+                          onTap: () {
+                            Get.to(
+                              () => MonthTransactionsScreen(
+                                monthId: m['id'],
+                                monthName: m['month'],
+                              ),
+                            );
+                          },
                         ),
                       ),
                     );
                   },
                 );
               }
-
 
               // 🔹 অন্য ফিল্টার / হোম লিস্ট দেখাবে (last active month)
               if (controller.transactions.isEmpty) {
@@ -130,7 +169,10 @@ class HomeScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: ListTile(
                       title: Text(trx.title),
                       subtitle: Text(
@@ -190,14 +232,10 @@ class HomeScreen extends StatelessWidget {
               );
             }),
           ),
-
-
-
         ],
       ),
     );
   }
-
 
   Widget filterButton(String text) {
     final HomeController controller = Get.find<HomeController>();
@@ -210,7 +248,9 @@ class HomeScreen extends StatelessWidget {
           text,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isSelected ? AppColors.addButtonColor : AppColors.unSelectedColor,
+            color: isSelected
+                ? AppColors.addButtonColor
+                : AppColors.unSelectedColor,
             fontSize: isSelected ? 16 : 14,
           ),
         ),
@@ -232,10 +272,7 @@ class HomeScreen extends StatelessWidget {
         showCheckmark: false,
 
         // 🔥 Padding
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
 
         // 🔥 Shadow
         elevation: isSelected ? 6 : 6,
