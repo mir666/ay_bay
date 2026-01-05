@@ -30,6 +30,8 @@ class HomeController extends GetxController {
 
 
   String? get uid => _auth.currentUser?.uid;
+  final monthSuggestions = <Map<String, dynamic>>[].obs;
+
 
 
   @override
@@ -41,6 +43,64 @@ class HomeController extends GetxController {
     });
     _fetchActiveMonth();
   }
+
+// 🔍 Search & Suggestions
+  final isSearching = false.obs;
+  final searchText = ''.obs;
+  final suggestions = <TransactionModel>[].obs;
+
+  void searchTransaction(String query) {
+    searchText.value = query;
+
+    if (query.isEmpty) {
+      transactions.value = allTransactions;
+      suggestions.clear();
+      monthSuggestions.clear();
+      return;
+    }
+
+    final q = query.toLowerCase();
+
+    /// 🔍 Transaction Suggestions
+    final trxMatches = allTransactions.where((trx) =>
+        trx.title.toLowerCase().contains(q)).toList();
+
+    suggestions.value = trxMatches.take(5).toList();
+    transactions.value = trxMatches;
+
+    /// 📅 Month Suggestions
+    monthSuggestions.value = months
+        .where((m) => m['month'].toString().toLowerCase().contains(q))
+        .take(5)
+        .toList();
+  }
+
+  void selectSuggestion(TransactionModel trx) {
+    searchText.value = trx.title;
+    transactions.value = [trx];
+    suggestions.clear();
+  }
+
+  void selectMonthFromSearch(Map<String, dynamic> month) {
+    selectedMonth.value = month['month'];
+    selectedMonthId.value = month['id'];
+
+    fetchTransactions(month['id']);
+
+    closeSearch();
+  }
+
+
+
+  void closeSearch() {
+    isSearching.value = false;
+    searchText.value = '';
+    suggestions.clear();
+    transactions.value = allTransactions;
+  }
+
+
+
 
   void _fetchActiveMonth() async {
     if (uid == null) return;
@@ -187,6 +247,22 @@ class HomeController extends GetxController {
     final monthName = DateFormat('MMMM yyyy').format(monthDate);
 
     try {
+      // 🔴 SAME MONTH CHECK
+      final existing = await _db
+          .collection('users')
+          .doc(uid)
+          .collection('months')
+          .where('monthKey', isEqualTo: monthKey)
+          .limit(1)
+          .get();
+
+      if (existing.docs.isNotEmpty) {
+        Get.snackbar(
+          'Already Exists',
+          'এই মাসের হিসাব ইতিমধ্যে খোলা আছে',
+        );
+        return;
+      }
       // 🔹 Deactivate previous month
       final previous = await _db
           .collection('users')
