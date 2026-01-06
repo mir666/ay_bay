@@ -14,19 +14,15 @@ class AddTransactionController extends GetxController {
   final amountCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
   final selectedCategory = ''.obs;
-  final selectedDate = DateTime
-      .now()
-      .obs;
+  final selectedDate = DateTime.now().obs;
 
   Rx<TransactionType> type = TransactionType.expense.obs;
   RxString category = ''.obs;
   RxBool isMonthly = false.obs;
   RxBool isLoading = false.obs;
 
-
   final categoriesIncome = ['Salary', 'Gift', 'Tuition'];
   final categoriesExpense = ['Food', 'Market', 'Transport'];
-
 
   void clearForm() {
     noteCtrl.clear();
@@ -53,7 +49,6 @@ class AddTransactionController extends GetxController {
       return;
     }
   }
-
 
   Future<void> saveTransaction() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -90,10 +85,6 @@ class AddTransactionController extends GetxController {
     Get.back();
   }
 
-
-
-
-
   @override
   void onClose() {
     amountCtrl.dispose();
@@ -101,8 +92,3 @@ class AddTransactionController extends GetxController {
     super.onClose();
   }
 }
-
-
-
-
-

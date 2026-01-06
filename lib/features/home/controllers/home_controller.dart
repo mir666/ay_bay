@@ -31,11 +31,7 @@ class HomeController extends GetxController {
   RxBool canAddTransaction = false.obs;
   Rx<DateTime> todayDate = DateTime.now().obs;
 
-
   String? get uid => _auth.currentUser?.uid;
-
-
-
 
   @override
   void onInit() {
@@ -50,7 +46,7 @@ class HomeController extends GetxController {
     _fetchActiveMonth();
   }
 
-// 🔍 Search & Suggestions
+  // 🔍 Search & Suggestions
   final isSearching = false.obs;
   final searchText = ''.obs;
   final suggestions = <TransactionModel>[].obs;
@@ -137,28 +133,20 @@ class HomeController extends GetxController {
     List<TransactionModel> temp = [];
 
     for (final month in monthSnap.docs) {
-      final trxSnap = await month.reference
-          .collection('transactions')
-          .get();
+      final trxSnap = await month.reference.collection('transactions').get();
 
       for (final trx in trxSnap.docs) {
         temp.add(
           TransactionModel.fromJson(
             trx.id,
             trx.data(),
-          ).copyWith(
-            monthId: month.id,
-            monthName: month['month'],
-          ),
+          ).copyWith(monthId: month.id, monthName: month['month']),
         );
       }
     }
 
     globalTransactions.value = temp;
   }
-
-
-
 
   void closeSearch() {
     isSearching.value = false;
@@ -168,18 +156,28 @@ class HomeController extends GetxController {
     transactions.value = allTransactions; // selected month restore
   }
 
-
   void _fetchActiveMonth() async {
     if (uid == null) return;
     String lastMonthId = _storage.read('selectedMonthId') ?? '';
     DocumentSnapshot? doc;
 
     if (lastMonthId.isNotEmpty) {
-      doc = await _db.collection('users').doc(uid).collection('months').doc(lastMonthId).get();
+      doc = await _db
+          .collection('users')
+          .doc(uid)
+          .collection('months')
+          .doc(lastMonthId)
+          .get();
     }
 
     if (doc == null || !doc.exists) {
-      final snapshot = await _db.collection('users').doc(uid).collection('months').where('isActive', isEqualTo: true).limit(1).get();
+      final snapshot = await _db
+          .collection('users')
+          .doc(uid)
+          .collection('months')
+          .where('isActive', isEqualTo: true)
+          .limit(1)
+          .get();
       if (snapshot.docs.isNotEmpty) doc = snapshot.docs.first;
     }
 
@@ -226,26 +224,17 @@ class HomeController extends GetxController {
     setFilter('সব');
   }
 
-
-
-
   /// ✅ Filter Logic (MODEL BASED)
   List<TransactionModel> _applyFilter(List<TransactionModel> data) {
     if (filterCategory.value == 'সব') return data;
 
     if (filterCategory.value == 'আয়') {
-      return data
-          .where((e) => e.type == TransactionType.income)
-          .toList();
+      return data.where((e) => e.type == TransactionType.income).toList();
     }
 
     if (filterCategory.value == 'ব্যয়') {
-      return data
-          .where((e) => e.type == TransactionType.expense)
-          .toList();
+      return data.where((e) => e.type == TransactionType.expense).toList();
     }
-
-
 
     return data;
   }
@@ -275,7 +264,6 @@ class HomeController extends GetxController {
     balance.value = totalBalance.value + inc - exp;
   }
 
-
   /// 📅 Month Listener
   void _listenMonths() {
     if (uid == null) return;
@@ -287,13 +275,10 @@ class HomeController extends GetxController {
         .orderBy('monthKey', descending: true)
         .snapshots()
         .listen((snapshot) {
-      months.value = snapshot.docs
-          .map((e) => {
-        'id': e.id,
-        ...e.data(),
-      })
-          .toList();
-    });
+          months.value = snapshot.docs
+              .map((e) => {'id': e.id, ...e.data()})
+              .toList();
+        });
   }
 
   Future<void> fetchTransactions(String monthId) async {
@@ -317,8 +302,6 @@ class HomeController extends GetxController {
     _calculateDashboard(data);
   }
 
-
-
   Future<void> addMonth({
     required DateTime monthDate,
     required double openingBalance,
@@ -339,10 +322,7 @@ class HomeController extends GetxController {
           .get();
 
       if (existing.docs.isNotEmpty) {
-        Get.snackbar(
-          'Already Exists',
-          'এই মাসের হিসাব ইতিমধ্যে খোলা আছে',
-        );
+        Get.snackbar('Already Exists', 'এই মাসের হিসাব ইতিমধ্যে খোলা আছে');
         return;
       }
       // 🔹 Deactivate previous month
@@ -363,13 +343,13 @@ class HomeController extends GetxController {
           .doc(uid)
           .collection('months')
           .add({
-        'month': monthName,
-        'monthKey': monthKey,
-        'opening': openingBalance,
-        'totalBalance': openingBalance,
-        'createdAt': Timestamp.now(),
-        'isActive': true,
-      });
+            'month': monthName,
+            'monthKey': monthKey,
+            'opening': openingBalance,
+            'totalBalance': openingBalance,
+            'createdAt': Timestamp.now(),
+            'isActive': true,
+          });
 
       // UI Update
       selectedMonth.value = monthName;
@@ -400,7 +380,11 @@ class HomeController extends GetxController {
     if (uid == null) return;
 
     try {
-      final monthRef = _db.collection('users').doc(uid).collection('months').doc(monthId);
+      final monthRef = _db
+          .collection('users')
+          .doc(uid)
+          .collection('months')
+          .doc(monthId);
 
       // 🔹 1️⃣ মাসের সব ট্রানজ্যাকশন ডিলিট
       final trxSnapshot = await monthRef.collection('transactions').get();
@@ -440,19 +424,16 @@ class HomeController extends GetxController {
       }
 
       Get.snackbar('Success', '$monthName মাস মুছে দেওয়া হয়েছে');
-
     } catch (e) {
       Get.snackbar('Error', e.toString());
     }
   }
 
-
   /// ⬅️ Previous Month
   void goToPreviousMonth() {
     if (months.isEmpty || selectedMonthId.value.isEmpty) return;
 
-    final index =
-    months.indexWhere((m) => m['id'] == selectedMonthId.value);
+    final index = months.indexWhere((m) => m['id'] == selectedMonthId.value);
 
     if (index == -1) return;
 
@@ -468,8 +449,7 @@ class HomeController extends GetxController {
   void goToNextMonth() {
     if (months.isEmpty || selectedMonthId.value.isEmpty) return;
 
-    final index =
-    months.indexWhere((m) => m['id'] == selectedMonthId.value);
+    final index = months.indexWhere((m) => m['id'] == selectedMonthId.value);
 
     if (index == -1) return;
 
@@ -480,8 +460,6 @@ class HomeController extends GetxController {
       Get.snackbar('Info', 'এটাই সর্বশেষ মাস');
     }
   }
-
-
 
   /// ✏️ Edit Transaction
   void editTransaction(TransactionModel trx) {
@@ -510,7 +488,6 @@ class HomeController extends GetxController {
       Get.snackbar('Error', e.toString());
     }
   }
-
 
   /// 🚪 Logout
   Future<void> logout() async {

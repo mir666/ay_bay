@@ -26,7 +26,7 @@ class MonthTransactionsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('$monthName মাসের লেনদেন',style: TextStyle(fontSize: 18),),
+        title: Text('$monthName মাসের লেনদেন', style: TextStyle(fontSize: 18)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -39,7 +39,8 @@ class MonthTransactionsScreen extends StatelessWidget {
       ),
       body: Obx(() {
         final list = controller.transactions;
-        if (list.isEmpty) return const Center(child: Text('কোনো ট্রানজ্যাকশন নেই'));
+        if (list.isEmpty)
+          return const Center(child: Text('কোনো ট্রানজ্যাকশন নেই'));
 
         double totalIncome = 0;
         double totalExpense = 0;
@@ -58,7 +59,8 @@ class MonthTransactionsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Card(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -181,9 +183,7 @@ class MonthTransactionsScreen extends StatelessWidget {
       ),
     );
 
-    await Printing.layoutPdf(
-      onLayout: (format) => pdf.save(),
-    );
+    await Printing.layoutPdf(onLayout: (format) => pdf.save());
   }
 
   pw.Widget _pdfSummary(String title, double amount, PdfColor color) {
@@ -191,7 +191,10 @@ class MonthTransactionsScreen extends StatelessWidget {
       children: [
         pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 4),
-        pw.Text('৳ $amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: color)),
+        pw.Text(
+          '৳ $amount',
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: color),
+        ),
       ],
     );
   }

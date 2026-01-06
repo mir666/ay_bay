@@ -80,8 +80,8 @@ class BalanceCard extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           shape: const CircleBorder(),
                           padding: const EdgeInsets.all(16),
-                          backgroundColor:
-                          AppColors.categoryTitleBgColor.withOpacity(0.2),
+                          backgroundColor: AppColors.categoryTitleBgColor
+                              .withOpacity(0.2),
                           elevation: 4,
                         ),
                         child: const Icon(
@@ -90,7 +90,6 @@ class BalanceCard extends StatelessWidget {
                           size: 20,
                         ),
                       ),
-
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -124,8 +123,8 @@ class BalanceCard extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           shape: const CircleBorder(),
                           padding: const EdgeInsets.all(16),
-                          backgroundColor:
-                          AppColors.categoryTitleBgColor.withOpacity(0.2),
+                          backgroundColor: AppColors.categoryTitleBgColor
+                              .withOpacity(0.2),
                           elevation: 4,
                         ),
                         child: const Icon(
@@ -134,7 +133,6 @@ class BalanceCard extends StatelessWidget {
                           size: 20,
                         ),
                       ),
-
                     ],
                   ),
                 ),

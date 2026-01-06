@@ -8,10 +8,7 @@ import 'package:intl/intl.dart';
 class AddTransactionScreen extends StatefulWidget {
   final TransactionModel? transaction; // ✅ ADD THIS
 
-  const AddTransactionScreen({
-    super.key,
-    this.transaction,
-  });
+  const AddTransactionScreen({super.key, this.transaction});
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -52,12 +49,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: Get.width *0.3),
+              SizedBox(height: Get.width * 0.3),
 
               Text(
                 isEdit ? 'লেনদেন আপডেট করুন' : 'আয়-ব্যয় যোগ করুন',
-                style:
-                const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
 
               const SizedBox(height: 32),
@@ -84,7 +83,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   /// Type Dropdown
                   Expanded(
                     child: Obx(
-                          () => DropdownButtonFormField<TransactionType>(
+                      () => DropdownButtonFormField<TransactionType>(
                         value: controller.type.value,
                         decoration: const InputDecoration(
                           labelText: 'ধরন',
@@ -112,7 +111,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   /// Date Picker
                   Expanded(
                     child: Obx(
-                          () => InkWell(
+                      () => InkWell(
                         onTap: () async {
                           final date = await showDatePicker(
                             context: context,
@@ -130,8 +129,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                             border: OutlineInputBorder(),
                           ),
                           child: Text(
-                            DateFormat('dd MMM yyyy')
-                                .format(controller.selectedDate.value),
+                            DateFormat(
+                              'dd MMM yyyy',
+                            ).format(controller.selectedDate.value),
                           ),
                         ),
                       ),
@@ -142,7 +142,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
               /// Monthly Switch
               Obx(
-                    () => SwitchListTile(
+                () => SwitchListTile(
                   title: const Text('মাসিক'),
                   value: controller.isMonthly.value,
                   onChanged: (v) => controller.isMonthly.value = v,
@@ -153,13 +153,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
               /// Save / Update Button
               Obx(
-                    () => ElevatedButton(
+                () => ElevatedButton(
                   onPressed: controller.isLoading.value
                       ? null
                       : controller.saveTransaction,
                   child: controller.isLoading.value
                       ? const CircularProgressIndicator()
-                      : Text(isEdit ? 'পুনরায় যোগ করুন' : 'যোগ করুন',style: TextStyle(color: Colors.white,fontSize: 18, fontWeight: FontWeight.w600,),),
+                      : Text(
+                          isEdit ? 'পুনরায় যোগ করুন' : 'যোগ করুন',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ],

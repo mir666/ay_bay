@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 Widget searchHighlightText(
-    String text,
-    String query, {
-      Color highlightColor = Colors.blue,
-      FontWeight fontWeight = FontWeight.bold,
-    }) {
+  String text,
+  String query, {
+  Color highlightColor = Colors.blue,
+  FontWeight fontWeight = FontWeight.bold,
+}) {
   if (query.isEmpty) {
     return Text(text);
   }
@@ -29,10 +29,7 @@ Widget searchHighlightText(
         ),
         TextSpan(
           text: text.substring(start, end),
-          style: TextStyle(
-            color: highlightColor,
-            fontWeight: fontWeight,
-          ),
+          style: TextStyle(color: highlightColor, fontWeight: fontWeight),
         ),
         TextSpan(
           text: text.substring(end),

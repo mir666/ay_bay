@@ -39,26 +39,16 @@ class SummaryCard extends StatelessWidget {
           ),
         ],
       );
-
     });
   }
 
-  Widget _item(
-      String title,
-      double value,
-      Color color,
-      IconData icon,
-      ) {
+  Widget _item(String title, double value, Color color, IconData icon) {
     return Column(
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 22,
-            ),
+            Icon(icon, color: color, size: 22),
             const SizedBox(width: 6),
             Text(
               title,
@@ -82,6 +72,4 @@ class SummaryCard extends StatelessWidget {
       ],
     );
   }
-
-
 }

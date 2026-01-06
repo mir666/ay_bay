@@ -18,15 +18,21 @@ class _AddMonthScreenState extends State<AddMonthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('যোগ করুন'),centerTitle: true,),
+      appBar: AppBar(title: const Text('যোগ করুন'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('মাসের খরচের মোট টাকা',style: TextStyle(fontSize: 28,fontWeight: FontWeight.w600),),
-            Text('যোগ করুন',style: TextStyle(fontSize: 24,fontWeight: FontWeight.w600),),
+            Text(
+              'মাসের খরচের মোট টাকা',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              'যোগ করুন',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+            ),
             SizedBox(height: 40),
             TextField(
               controller: amountCtrl,
@@ -70,8 +76,15 @@ class _AddMonthScreenState extends State<AddMonthScreen> {
                 );
               },
 
-              child: Text('যোগ করুন', style: TextStyle(color: Colors.white,fontSize: 18,fontWeight: FontWeight.w600),),
-            )
+              child: Text(
+                'যোগ করুন',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
         ),
       ),
