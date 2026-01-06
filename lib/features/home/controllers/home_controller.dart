@@ -18,6 +18,7 @@ class HomeController extends GetxController {
   RxList<TransactionModel> transactions = <TransactionModel>[].obs;
   final monthSuggestions = <Map<String, dynamic>>[].obs;
   RxList<Map<String, dynamic>> months = <Map<String, dynamic>>[].obs;
+  RxList<TransactionModel> globalTransactions = <TransactionModel>[].obs;
 
   /// Dashboard
   RxDouble income = 0.0.obs;
@@ -41,6 +42,8 @@ class HomeController extends GetxController {
     super.onInit();
     _listenMonths();
     _loadState();
+    _fetchActiveMonth();
+    fetchGlobalTransactions();
     Timer.periodic(const Duration(minutes: 1), (_) {
       todayDate.value = DateTime.now();
     });
@@ -82,9 +85,12 @@ class HomeController extends GetxController {
 
     final q = query.toLowerCase();
 
-    /// 🔍 Transaction Suggestions
-    final trxMatches = allTransactions.where((trx) =>
-        trx.title.toLowerCase().contains(q)).toList();
+    /// 🔍 GLOBAL TRANSACTION SEARCH
+    final trxMatches = globalTransactions.where((trx) {
+      return trx.title.toLowerCase().contains(q) ||
+          trx.category.toLowerCase().contains(q) ||
+          trx.monthName.toLowerCase().contains(q);
+    }).toList();
 
     suggestions.value = trxMatches.take(5).toList();
     transactions.value = trxMatches;
@@ -96,26 +102,70 @@ class HomeController extends GetxController {
         .toList();
   }
 
-  void selectSuggestion(TransactionModel trx) {
+  void selectSuggestion(TransactionModel trx) async {
     searchText.value = trx.title;
-    transactions.value = [trx];
+
+    selectedMonth.value = trx.monthName;
+    selectedMonthId.value = trx.monthId;
+
+    await fetchTransactions(trx.monthId);
+
+    transactions.value = [trx]; // শুধু ঐ লেনদেন দেখাবে
     suggestions.clear();
+    monthSuggestions.clear();
+    isSearching.value = false;
   }
 
-  void selectMonthFromSearch(Map<String, dynamic> month) {
+  void selectMonthFromSearch(Map<String, dynamic> month) async {
     selectedMonth.value = month['month'];
     selectedMonthId.value = month['id'];
 
-    fetchTransactions(month['id']);
+    await fetchTransactions(month['id']);
 
     closeSearch();
   }
+
+  Future<void> fetchGlobalTransactions() async {
+    if (uid == null) return;
+
+    final monthSnap = await _db
+        .collection('users')
+        .doc(uid)
+        .collection('months')
+        .get();
+
+    List<TransactionModel> temp = [];
+
+    for (final month in monthSnap.docs) {
+      final trxSnap = await month.reference
+          .collection('transactions')
+          .get();
+
+      for (final trx in trxSnap.docs) {
+        temp.add(
+          TransactionModel.fromJson(
+            trx.id,
+            trx.data(),
+          ).copyWith(
+            monthId: month.id,
+            monthName: month['month'],
+          ),
+        );
+      }
+    }
+
+    globalTransactions.value = temp;
+  }
+
+
+
 
   void closeSearch() {
     isSearching.value = false;
     searchText.value = '';
     suggestions.clear();
-    transactions.value = allTransactions;
+    monthSuggestions.clear();
+    transactions.value = allTransactions; // selected month restore
   }
 
 
@@ -167,10 +217,11 @@ class HomeController extends GetxController {
     selectedMonth.value = month['month'];
     selectedMonthId.value = month['id'];
     totalBalance.value = (month['totalBalance'] ?? 0).toDouble();
-    _saveState();
+
     // সিলেক্ট করা মাসের ট্রানজ্যাকশন লোড
     fetchTransactions(month['id']);
-
+    _saveState();
+    filterCategory.value = 'সব';
     // মাসিক লিস্ট থেকে select করলে filter সব থাকবে
     setFilter('সব');
   }
@@ -194,12 +245,6 @@ class HomeController extends GetxController {
           .toList();
     }
 
-    if (filterCategory.value == 'মাসিক') {
-      final key = DateFormat('yyyy-MM').format(DateTime.now());
-      return data.where((e) {
-        return DateFormat('yyyy-MM').format(e.date) == key;
-      }).toList();
-    }
 
 
     return data;
@@ -332,6 +377,16 @@ class HomeController extends GetxController {
       totalBalance.value = openingBalance;
       balance.value = openingBalance;
       canAddTransaction.value = true;
+      totalBalance.value = openingBalance;
+      balance.value = openingBalance;
+
+      income.value = 0;
+      expense.value = 0;
+
+      allTransactions.clear();
+      transactions.clear();
+
+      canAddTransaction.value = true;
 
       Get.back();
       Get.snackbar('Success', 'নতুন মাস যোগ হয়েছে');
@@ -392,6 +447,39 @@ class HomeController extends GetxController {
   }
 
 
+  /// ⬅️ Previous Month
+  void goToPreviousMonth() {
+    if (months.isEmpty || selectedMonthId.value.isEmpty) return;
+
+    final index =
+    months.indexWhere((m) => m['id'] == selectedMonthId.value);
+
+    if (index == -1) return;
+
+    // older month = next index (because list is desc)
+    if (index + 1 < months.length) {
+      selectMonth(months[index + 1]);
+    } else {
+      Get.snackbar('Info', 'আর আগের কোনো মাস নেই');
+    }
+  }
+
+  /// ➡️ Next Month
+  void goToNextMonth() {
+    if (months.isEmpty || selectedMonthId.value.isEmpty) return;
+
+    final index =
+    months.indexWhere((m) => m['id'] == selectedMonthId.value);
+
+    if (index == -1) return;
+
+    // newer month = previous index
+    if (index - 1 >= 0) {
+      selectMonth(months[index - 1]);
+    } else {
+      Get.snackbar('Info', 'এটাই সর্বশেষ মাস');
+    }
+  }
 
 
 

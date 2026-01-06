@@ -76,19 +76,21 @@ class BalanceCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: controller.goToPreviousMonth,
                         style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(), // 🔹 Circular shape
-                          padding: const EdgeInsets.all(16), // 🔹 Button size
-                          backgroundColor: AppColors.categoryTitleBgColor.withOpacity(0.2), // 🔹 Button color
-                          elevation: 4, // 🔹 Shadow
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(16),
+                          backgroundColor:
+                          AppColors.categoryTitleBgColor.withOpacity(0.2),
+                          elevation: 4,
                         ),
                         child: const Icon(
                           Icons.arrow_back_ios,
                           color: Colors.white,
-                          size: 20, // 🔹 Icon size
+                          size: 20,
                         ),
                       ),
+
 
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -118,19 +120,21 @@ class BalanceCard extends StatelessWidget {
                         }),
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: controller.goToNextMonth,
                         style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(), // 🔹 Circular shape
-                          padding: const EdgeInsets.all(16), // 🔹 Button size
-                          backgroundColor: AppColors.categoryTitleBgColor.withOpacity(0.2), // 🔹 Button color
-                          elevation: 4, // 🔹 Shadow
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(16),
+                          backgroundColor:
+                          AppColors.categoryTitleBgColor.withOpacity(0.2),
+                          elevation: 4,
                         ),
                         child: const Icon(
                           Icons.arrow_forward_ios,
                           color: Colors.white,
-                          size: 20, // 🔹 Icon size
+                          size: 20,
                         ),
                       ),
+
                     ],
                   ),
                 ),

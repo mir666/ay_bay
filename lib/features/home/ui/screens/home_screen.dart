@@ -138,6 +138,7 @@ class HomeScreen extends StatelessWidget {
                             },
                           ),
                           onTap: () {
+                            controller.selectMonth(m);
                             Get.to(
                               () => MonthTransactionsScreen(
                                 monthId: m['id'],

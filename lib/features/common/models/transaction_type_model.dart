@@ -10,6 +10,8 @@ class TransactionModel {
   final String category;
   final DateTime date;
   final bool isMonthly;
+  final String monthId;
+  final String monthName;
 
   TransactionModel({
     required this.id,
@@ -18,30 +20,45 @@ class TransactionModel {
     required this.type,
     required this.category,
     required this.date,
-    this.isMonthly = false,
+    required this.isMonthly,
+    required this.monthId,
+    required this.monthName,
   });
 
-  /// 🔁 Firestore → Model
-  factory TransactionModel.fromJson(
-      String id,
-      Map<String, dynamic> json,
-      ) {
+  factory TransactionModel.fromJson(String id, Map<String, dynamic> json) {
     return TransactionModel(
       id: id,
       title: json['title'] ?? '',
       amount: (json['amount'] ?? 0).toDouble(),
-      type: json['type'] == 'income'
-          ? TransactionType.income
-          : TransactionType.expense,
+      type: _parseType(json['type']),
       category: json['category'] ?? '',
       date: json['date'] is Timestamp
           ? (json['date'] as Timestamp).toDate()
           : DateTime.now(),
       isMonthly: json['isMonthly'] ?? false,
+      monthId: '',
+      monthName: '',
     );
   }
 
-  /// 🔁 Model → Firestore
+  TransactionModel copyWith({
+    String? monthId,
+    String? monthName,
+    bool? isMonthly,
+  }) {
+    return TransactionModel(
+      id: id,
+      title: title,
+      amount: amount,
+      type: type,
+      category: category,
+      date: date,
+      isMonthly: isMonthly ?? this.isMonthly,
+      monthId: monthId ?? this.monthId,
+      monthName: monthName ?? this.monthName,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -52,4 +69,16 @@ class TransactionModel {
       'isMonthly': isMonthly,
     };
   }
+
+  static TransactionType _parseType(String? type) {
+    switch (type) {
+      case 'income':
+        return TransactionType.income;
+      case 'expense':
+        return TransactionType.expense;
+      default:
+        return TransactionType.expense;
+    }
+  }
 }
+
