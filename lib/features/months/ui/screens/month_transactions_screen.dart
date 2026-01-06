@@ -1,3 +1,4 @@
+import 'package:ay_bay/app/app_colors.dart';
 import 'package:ay_bay/app/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -39,8 +40,9 @@ class MonthTransactionsScreen extends StatelessWidget {
       ),
       body: Obx(() {
         final list = controller.transactions;
-        if (list.isEmpty)
+        if (list.isEmpty) {
           return const Center(child: Text('কোনো ট্রানজ্যাকশন নেই'));
+        }
 
         double totalIncome = 0;
         double totalExpense = 0;
@@ -58,9 +60,13 @@ class MonthTransactionsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(12),
               child: Card(
+                color: AppColors.ayCardColor,
+                elevation: 4,
+                shadowColor: Colors.black26,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -107,7 +113,11 @@ class MonthTransactionsScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: AppColors.categoryTitleColor,
+          ),
         ),
         const SizedBox(height: 4),
         Text(

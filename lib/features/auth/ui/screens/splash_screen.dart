@@ -2,7 +2,6 @@ import 'package:ay_bay/app/app_config.dart';
 import 'package:ay_bay/app/app_path.dart';
 import 'package:ay_bay/app/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _moveToNextScreen() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 1));
     Get.offAndToNamed(AppRoutes.login);
   }
 
@@ -42,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Spacer(),
-              SvgPicture.asset(AssetsPath.logoSvg),
+              Image(image: AssetImage(AssetsPath.logoImage),width: 200),
               SizedBox(height: 36),
               CircularProgressIndicator(color: Colors.white,),
               Spacer(),

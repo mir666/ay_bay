@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:ay_bay/app/app_colors.dart';
+import 'package:ay_bay/app/app_path.dart';
 import 'package:ay_bay/app/app_routes.dart';
 import 'package:ay_bay/features/common/models/transaction_type_model.dart';
 import 'package:ay_bay/features/home/controllers/home_controller.dart';
@@ -8,10 +9,16 @@ import 'package:ay_bay/features/home/widget/summary_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:side_sheet/side_sheet.dart';
 
-class BalanceCard extends StatelessWidget {
+class BalanceCard extends StatefulWidget {
   const BalanceCard({super.key});
 
+  @override
+  State<BalanceCard> createState() => _BalanceCardState();
+}
+
+class _BalanceCardState extends State<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
@@ -21,7 +28,7 @@ class BalanceCard extends StatelessWidget {
         children: [
           /// 🔹 MAIN CARD
           Container(
-            padding: const EdgeInsets.only(top: 20, bottom: 20),
+            padding: const EdgeInsets.only(top: 30, bottom: 20),
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(16),
@@ -40,19 +47,57 @@ class BalanceCard extends StatelessWidget {
             ),
             child: Column(
               children: [
+                /// 🔹 Top Row (Menu + Search)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.menu_rounded,
-                          color: Colors.white,
+                      CircleAvatar(
+                        backgroundColor: AppColors.monthAddButtonColor,
+                        child: IconButton(
+                          onPressed: () async {
+                            final data = await SideSheet.left(
+                                body: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: SizedBox(
+                                    height: MediaQuery.sizeOf(context).height * 0.5,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          height: 150,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.bannerBottomColor,
+                                            image: DecorationImage(image: AssetImage(AssetsPath.drawerBannerImg), fit: BoxFit.fill)
+                                          ),
+                                        ),
+                                        SizedBox(height: 20),
+                                        Text('asldfjlasdjflksad'),
+                                        SizedBox(height: 20),
+                                        Text('asldfjlasdjflksad'),
+                                        SizedBox(height: 20),
+                                        Text('asldfjlasdjflksad'),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.home_filled,),
+                                            Text('data')
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                context: context);
+                            setState(() {
+
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.person_2_outlined,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-
                       IconButton(
                         icon: Icon(
                           controller.isSearching.value
@@ -70,11 +115,15 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
 
+                const SizedBox(height: 12),
+
+                /// 🔹 Month Selector Row
                 Padding(
-                  padding: EdgeInsets.only(left: 10, right: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Previous Month
                       ElevatedButton(
                         onPressed: controller.goToPreviousMonth,
                         style: ElevatedButton.styleFrom(
@@ -82,7 +131,7 @@ class BalanceCard extends StatelessWidget {
                           padding: const EdgeInsets.all(16),
                           backgroundColor: AppColors.categoryTitleBgColor
                               .withOpacity(0.2),
-                          elevation: 4,
+                          elevation: 2,
                         ),
                         child: const Icon(
                           Icons.arrow_back_ios,
@@ -91,33 +140,116 @@ class BalanceCard extends StatelessWidget {
                         ),
                       ),
 
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.categoryTitleBgColor
-                              .withOpacity(0.2),
-                          padding: const EdgeInsets.symmetric(horizontal: 40),
-                        ),
-                        onPressed: () {
-                          Get.toNamed(AppRoutes.addMonth);
-                        },
-                        child: Obx(() {
-                          final monthText =
-                              controller.selectedMonth.value.isEmpty
-                              ? 'মাস'
-                              : controller.selectedMonth.value;
-
-                          final today = controller.todayDate.value;
-
-                          return Text(
-                            '$monthText (${DateFormat('dd MMM').format(today)})',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                      // Month Dropdown
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: AppColors.categoryTitleBgColor.withOpacity(
+                              0.1,
                             ),
-                          );
-                        }),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Obx(() {
+                            final today = controller.todayDate.value;
+
+                            // ✅ Check: selectedMonth must exist in months list
+                            final safeSelectedMonth =
+                                controller.months.any(
+                                  (m) =>
+                                      m['month'] ==
+                                      controller.selectedMonth.value,
+                                )
+                                ? controller.selectedMonth.value
+                                : null;
+
+                            return DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: safeSelectedMonth,
+                                hint: Text(
+                                  safeSelectedMonth == null
+                                      ? 'মাস'
+                                      : '${safeSelectedMonth} (${DateFormat('dd MMM').format(today)})',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.white,
+                                ),
+                                dropdownColor: const Color(0xFF0F2C59),
+                                items: [
+                                  ...controller.months.map((m) {
+                                    return DropdownMenuItem<String>(
+                                      value: m['month'],
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            m['month'],
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          Text(
+                                            DateFormat('dd MMM').format(today),
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+
+                                  const DropdownMenuItem<String>(
+                                    enabled: false,
+                                    child: Divider(color: Colors.white),
+                                  ),
+
+                                  DropdownMenuItem<String>(
+                                    enabled: false,
+                                    child: TextButton.icon(
+                                      onPressed: () async {
+                                        final result = await Get.toNamed(
+                                          AppRoutes.addMonth,
+                                        );
+                                        if (result != null &&
+                                            result is Map<String, dynamic>) {
+                                          controller.selectMonth(result);
+                                        }
+                                      },
+                                      icon: const Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                      ),
+                                      label: const Text(
+                                        'নতুন মাস খুলুন',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (monthName) {
+                                  if (monthName == null) return;
+                                  final month = controller.months.firstWhere(
+                                    (m) => m['month'] == monthName,
+                                  );
+                                  controller.selectMonth(month);
+                                },
+                              ),
+                            );
+                          }),
+                        ),
                       ),
+
+                      // Next Month
                       ElevatedButton(
                         onPressed: controller.goToNextMonth,
                         style: ElevatedButton.styleFrom(
@@ -125,7 +257,7 @@ class BalanceCard extends StatelessWidget {
                           padding: const EdgeInsets.all(16),
                           backgroundColor: AppColors.categoryTitleBgColor
                               .withOpacity(0.2),
-                          elevation: 4,
+                          elevation: 2,
                         ),
                         child: const Icon(
                           Icons.arrow_forward_ios,
@@ -137,14 +269,32 @@ class BalanceCard extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 40),
-                Row(
-                  children: [
-                    _item('মোট বাজেট', controller.totalBalance.value),
-                    _item('বর্তমান টাকা', controller.balance.value),
-                  ],
+                const SizedBox(height: 30),
+
+                // Dashboard Summary
+                Container(
+                  width: 390,
+                  height: 110,
+                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.monthAddButtonColor.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.bannerBottomColor,
+                      style: BorderStyle.solid,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      _item('মোট বাজেট', controller.totalBalance.value),
+                      VerticalDivider(
+                        color: AppColors.addButtonColor.withOpacity(0.2),
+                      ),
+                      _item('ব্যালেন্স', controller.balance.value),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
                 const SummaryCard(),
               ],
             ),
@@ -188,7 +338,7 @@ class BalanceCard extends StatelessWidget {
                       ),
                     ),
 
-                    /// 📅 MONTH SUGGESTIONS
+                    /// Month Suggestions
                     Obx(() {
                       if (controller.monthSuggestions.isEmpty) {
                         return const SizedBox();
@@ -213,7 +363,6 @@ class BalanceCard extends StatelessWidget {
                             itemCount: controller.monthSuggestions.length,
                             itemBuilder: (context, index) {
                               final m = controller.monthSuggestions[index];
-
                               return ListTile(
                                 leading: const Icon(Icons.calendar_month),
                                 title: searchHighlightText(
@@ -221,7 +370,6 @@ class BalanceCard extends StatelessWidget {
                                   controller.searchText.value,
                                   highlightColor: Colors.deepPurple,
                                 ),
-
                                 onTap: () =>
                                     controller.selectMonthFromSearch(m),
                               );
@@ -232,7 +380,7 @@ class BalanceCard extends StatelessWidget {
                       );
                     }),
 
-                    /// 🔍 TRANSACTION SUGGESTIONS
+                    /// Transaction Suggestions
                     Obx(() {
                       if (controller.suggestions.isEmpty) {
                         return const SizedBox();
@@ -245,7 +393,6 @@ class BalanceCard extends StatelessWidget {
                           itemCount: controller.suggestions.length,
                           itemBuilder: (context, index) {
                             final trx = controller.suggestions[index];
-
                             return ListTile(
                               leading: Icon(
                                 trx.type == TransactionType.income
@@ -263,7 +410,6 @@ class BalanceCard extends StatelessWidget {
                                     ? Colors.green
                                     : Colors.red,
                               ),
-
                               subtitle: Text(
                                 DateFormat('dd MMM yyyy').format(trx.date),
                               ),
@@ -294,7 +440,7 @@ class BalanceCard extends StatelessWidget {
             title,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),

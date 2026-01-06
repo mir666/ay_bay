@@ -15,27 +15,50 @@ class SummaryCard extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _item(
-            'আয়',
-            controller.income.value,
-            Colors.greenAccent,
-            Icons.trending_up, // 📈 like icon
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.addButtonColor,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+          Expanded(
+            flex: 1,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              padding: EdgeInsets.only(top: 5),
+              height: 70,
+              decoration: BoxDecoration(
+                color: AppColors.monthAddButtonColor.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.bannerBottomColor,
+                  style: BorderStyle.solid,
+                ),
+              ),
+              child: _item(
+                'আয়',
+                controller.income.value,
+                Colors.greenAccent,
+                Icons.trending_up, // 📈 like icon
+              ),
             ),
-            onPressed: () {
-              Get.to(() => AddTransactionScreen());
-            },
-            child: const Icon(Icons.add, size: 26, color: Colors.white),
           ),
-          _item(
-            'ব্যয়',
-            controller.expense.value,
-            Colors.redAccent,
-            Icons.trending_down, // 📉 like icon
+
+          Expanded(
+            flex: 1,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              padding: EdgeInsets.only(top: 5),
+              height: 70,
+              decoration: BoxDecoration(
+                color: AppColors.monthAddButtonColor.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.bannerBottomColor,
+                  style: BorderStyle.solid,
+                ),
+              ),
+              child: _item(
+                'ব্যয়',
+                controller.expense.value,
+                Colors.redAccent,
+                Icons.trending_down, // 📉 like icon
+              ),
+            ),
           ),
         ],
       );

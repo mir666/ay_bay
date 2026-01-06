@@ -423,6 +423,11 @@ class HomeController extends GetxController {
         }
       }
 
+      months.removeWhere((m) => m['month'] == monthName);
+      if (selectedMonth.value == monthName) {
+        selectedMonth.value = months.isNotEmpty ? months.first['month'] : '';
+      }
+
       Get.snackbar('Success', '$monthName মাস মুছে দেওয়া হয়েছে');
     } catch (e) {
       Get.snackbar('Error', e.toString());
